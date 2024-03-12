@@ -1,6 +1,4 @@
-# Frontend
-
-Frontend for Supply Chain Management
+# Supply Chain Management using Hyperledger Fabric
 
 ## Introduction
 

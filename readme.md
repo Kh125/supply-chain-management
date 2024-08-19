@@ -1,5 +1,54 @@
 # Supply Chain Management using Hyperledger Fabric
 
+## Design
+<div style="display: flex;">
+  <img src="https://github.com/user-attachments/assets/8c6b3657-018a-4c3e-840e-f2c986b25edc" alt="Dashboard" style="width: 49%; margin-right: 1%;" />
+</div>
+
+<div style="display: flex;">
+  <img src="https://github.com/user-attachments/assets/d434b7e5-9354-4d5b-8355-79a9574fb58e" alt="Register" style="width: 49%; margin-right: 1%;" />
+</div>
+
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/a8e23c4f-529a-4cd2-ae27-2861bed7dd80" alt="Login" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/446de9ba-9267-4d09-b224-440fa0dc698e" alt="Profile" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/3d7b5ae3-a24e-46cb-b030-098ddd57d791" alt="Services" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/9ed360c4-48f4-4299-8f77-0449f2b5cbc5" alt="Create Token" style="width: 49%;" />
+</div>
+
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/4812f903-e149-440c-86b5-21ac1b7d4810" alt="Product Details" style="width: 49%;" />
+</div>
+
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/b17502cf-db60-43de-8369-0a68887d0bd2" alt="Product List" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/76defeb7-e570-490f-aebd-0c66c52b2adb" alt="Product List" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/e1975656-cc97-467e-a345-826cfbe2d394" alt="Product List" style="width: 49%;" />
+</div>
+
+<div style="display: flex">
+  <img src="https://github.com/user-attachments/assets/b3f432e8-513f-46c0-bb5a-1281af85dab4" alt="Product Details" style="width: 49%;" />
+</div>
+
+
 ## Introduction
 
 Frontend is implemented using MERN stack. Frontend is running on port 3000 and connect with Hyperledger Fabric Backend which is running on port 4000

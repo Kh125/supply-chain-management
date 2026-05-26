@@ -1,273 +1,238 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import manufacturer from "../assets/images/home/manufacturer.png";
-import wholesaler from "../assets/images/home/wholesaler.png";
-import retailer from "../assets/images/home/consumer.png";
-import { useNavigate } from "react-router-dom";
+import consumerImg from "../assets/images/home/consumer.png";
 
 function Home() {
   const navigate = useNavigate();
+
   return (
-    <>
-      <div className="min-h-screen scroll-smooth">
-        <div class="relative isolate overflow-hidden bg-gray-900">
-          <svg
-            class="absolute inset-0 -z-10 h-full w-full stroke-white/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
-            aria-hidden="true"
-          >
-            <svg x="50%" y="-1" class="overflow-visible fill-gray-800/20">
-              <path
-                d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
-                stroke-width="0"
-              />
-            </svg>
-            <rect
-              width="100%"
-              height="100%"
-              stroke-width="0"
-              fill="url(#983e3e4c-de6d-4c3f-8d64-b9761d1534cc)"
-            />
-          </svg>
-          <div
-            class="absolute left-[calc(50%-4rem)] top-10 -z-10 transform-gpu blur-3xl sm:left-[calc(50%-18rem)] lg:left-48 lg:top-[calc(50%-30rem)] xl:left-[calc(50%-24rem)]"
-            aria-hidden="true"
-          >
-            <div class="aspect-[1108/632] w-[69.25rem] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"></div>
+    <div className="min-h-screen bg-surface">
+      {/* ── Hero Section ── */}
+      <section className="relative isolate overflow-hidden">
+        {/* Background gradient orbs */}
+        <div
+          aria-hidden="true"
+          className="gradient-orb w-[600px] h-[600px] bg-indigo-500 top-[-100px] left-[-200px]"
+        />
+        <div
+          aria-hidden="true"
+          className="gradient-orb w-[400px] h-[400px] bg-cyan-500 top-[100px] right-[-100px]"
+        />
+
+        {/* Grid pattern */}
+        <svg
+          className="absolute inset-0 -z-10 h-full w-full stroke-white/5 [mask-image:radial-gradient(80%_80%_at_top_center,white,transparent)]"
+          aria-hidden="true"
+        >
+          <defs>
+            <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M0 40V0H40" fill="none" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-grid)" />
+        </svg>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-6 pb-28 pt-20 sm:pb-36 lg:flex lg:px-8 lg:py-48">
+          <div className="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pt-8">
+            {/* Badge */}
+            <div className="mt-4 sm:mt-8">
+              <a
+                href="#about"
+                className="inline-flex items-center gap-2 rounded-full bg-accent-muted ring-1 ring-accent/30 px-4 py-1.5 text-sm font-medium text-accent hover:bg-accent/20 transition-colors duration-200"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-accent-alt animate-pulse" />
+                Built on Hyperledger Fabric
+                <svg className="h-3.5 w-3.5 opacity-60" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </div>
+
+            <h1 className="mt-8 text-5xl font-extrabold tracking-tight text-content-primary sm:text-7xl leading-tight">
+              Your Supply<br />
+              <span className="text-gradient">Chain Nexus</span>
+            </h1>
+
+            <p className="mt-6 text-lg leading-8 text-content-secondary">
+              Dive into the intricacies of supply chain management and stay updated on the latest industry advancements with full blockchain transparency.
+            </p>
+
+            <div className="mt-10 flex items-center gap-4 flex-wrap">
+              <button
+                onClick={() => navigate("/register")}
+                className="btn-primary px-6 py-3 text-base rounded-xl shadow-glow-sm"
+              >
+                Get Started
+                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <a
+                href="#about"
+                className="text-sm font-semibold text-content-secondary hover:text-content-primary transition-colors duration-200 flex items-center gap-1"
+              >
+                Learn more
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
           </div>
-          <div class="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
-            <div class="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pt-8">
-              {/* <img
-                class="h-11"
-                src="https://isren.org/storage/isren-network.png"
-                alt="Your Company"
-              /> */}
-              <div class="mt-24 sm:mt-32 lg:mt-16">
-                <a href="#about" class="inline-flex space-x-6">
-                  <span class="rounded-full bg-indigo-500/10 px-3 py-1 text-sm font-semibold leading-6 text-cyan-500 ring-1 ring-inset ring-indigo-500/20">
-                    What's new
-                  </span>
-                  <span class="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-300">
-                    <span>About us</span>
-                    <svg
-                      class="h-5 w-5 text-gray-500"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </span>
-                </a>
-              </div>
-              <h1 class="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                Your Supply Chain Nexus
-              </h1>
-              <p class="mt-6 text-lg leading-8 text-gray-300">
-                Dive into the intricacies of supply chain management and stay
-                updated on the latest industry advancements and insights.
-              </p>
-              <div class="mt-10 flex items-center gap-x-6">
-                <a
-                  onClick={() => navigate("/register")}
-                  class="rounded-md bg-orange-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 transition duration-300 cursor-pointer"
-                >
-                  Get started
-                </a>
-                {/* <a href="#" class="text-sm font-semibold leading-6 text-white">
-                  Learn more <span aria-hidden="true">→</span>
-                </a> */}
+
+          {/* Hero side decoration */}
+          <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none xl:ml-32 flex-1 items-center justify-center">
+            <div className="relative w-full max-w-md">
+              <div className="glass-card p-6 shadow-glow-sm animate-slide-up">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-3 w-3 rounded-full bg-red-400" />
+                  <div className="h-3 w-3 rounded-full bg-yellow-400" />
+                  <div className="h-3 w-3 rounded-full bg-green-400" />
+                  <span className="ml-2 text-xs text-content-muted font-mono">ledger.tx</span>
+                </div>
+                {[
+                  { label: "PRODUCT_CREATED", color: "text-green-400", val: "iPhone 16 Pro" },
+                  { label: "ORDER_PLACED",    color: "text-cyan-400",  val: "consumer@org2" },
+                  { label: "ACCEPTED",        color: "text-indigo-400",val: "manufacturer@org1" },
+                  { label: "SHIPPED",         color: "text-blue-400",  val: "DHL #TX-7823" },
+                  { label: "DELIVERED",       color: "text-emerald-400",val: "✓ Confirmed" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 py-2 border-b border-surface-border last:border-0">
+                    <span className={`text-xs font-mono font-semibold ${item.color} min-w-[150px]`}>{item.label}</span>
+                    <span className="text-xs text-content-muted font-mono truncate">{item.val}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-        <div class="relative isolate overflow-hidden bg-gray-900">
-          <div
-            aria-hidden="true"
-            class="absolute w-full top-10 -z-10 transform-gpu blur-3xl lg:top-[calc(50%-30rem)] "
-          >
-            <div class="aspect-[1108/632] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"></div>
-          </div>
-          <div>
-            <div id="title" class="text-center my-10">
-              <h1 class="font-bold text-4xl text-white">Key Features</h1>
-            </div>
-            <p class="mt-6 text-center text-lg leading-8 text-gray-300">
-              Track and Trace: Monitor every step of your supply chain journey
-              with real-time visibility, ensuring seamless coordination and
-              transparency across all stakeholders.
+      </section>
+
+      {/* ── Key Features Section ── */}
+      <section className="relative py-24 bg-surface-card/30">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <p className="text-sm font-semibold text-accent uppercase tracking-widest mb-3">Platform Features</p>
+            <h2 className="text-4xl font-bold text-content-primary">Built for Every Role</h2>
+            <p className="mt-4 text-lg text-content-secondary max-w-2xl mx-auto">
+              Track and trace every step of your supply chain journey with real-time blockchain visibility.
             </p>
           </div>
 
-          <div class="mx-auto max-w-7xl px-6 pb-24 py-10 lg:flex">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-evenly gap-10 pt-10">
-              <div
-                id="plan"
-                class="rounded-lg text-center overflow-hidden w-full transform shadow-2xl transition duration-200 ease-in"
-              >
-                <div id="title" class="w-full py-5 border-b border-white">
-                  <h2 class="font-bold text-3xl text-white">
-                    For Manufacturer
-                  </h2>
-                </div>
-                <div id="content" class="">
-                  <div
-                    id="icon"
-                    class="my-5 text-center mx-auto flex items-center justify-center"
-                  >
-                    <img
-                      src={manufacturer}
-                      alt="Medical Record"
-                      className="h-12 w-12 mb-4 text-white"
-                    />
-                  </div>
-                  <div id="contain" class="leading-8 mb-10 text-lg font-light">
-                    <p className="text-base text-gray-200 text-center px-20">
-                      Our platform empowers distributors to efficiently manage
-                      and track product movement, ensuring seamless transactions
-                      and supply chain visibility.
-                    </p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Manufacturer card */}
+            <div className="glass-card p-8 hover:border-accent/40 hover:shadow-glow-sm transition-all duration-300 group">
+              <div className="h-12 w-12 rounded-xl bg-indigo-500/20 flex items-center justify-center mb-6 ring-1 ring-indigo-500/30 group-hover:ring-indigo-500/60 transition-all duration-300">
+                <img src={manufacturer} alt="Manufacturer" className="h-7 w-7" />
               </div>
-              <div
-                id="plan"
-                class="rounded-lg text-center overflow-hidden w-full transform shadow-2xl transition duration-200 ease-in"
-              >
-                <div id="title" class="w-full py-5 border-b border-white">
-                  <h2 class="font-bold text-3xl text-white">
-                    For Distributors
-                  </h2>
-                </div>
-                <div id="content" class="">
-                  <div
-                    id="icon"
-                    class="my-5 text-center mx-auto flex items-center justify-center"
-                  >
-                    <img
-                      src={wholesaler}
-                      alt="Secure Data"
-                      className="h-12 w-12 mb-4"
-                    />
-                  </div>
-                  <div id="contain" class="leading-8 mb-10 text-lg font-light">
-                    <p className="text-base text-gray-200 text-center px-20">
-                      Our platform empowers distributors to efficiently manage
-                      and track product movement, ensuring seamless transactions
-                      and supply chain visibility.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div
-                id="plan"
-                class="rounded-lg text-center overflow-hidden w-full transform shadow-2xl transition duration-200 ease-in"
-              >
-                <div id="title" class="w-full py-5 border-b border-white">
-                  <h2 class="font-bold text-3xl text-white">For Consumer</h2>
-                </div>
-                <div id="content" class="">
-                  <div
-                    id="icon"
-                    class="my-5 text-center mx-auto flex items-center justify-center"
-                  >
-                    <img
-                      src={retailer}
-                      alt="Medical Record"
-                      className="h-12 w-12 mb-4"
-                    />
-                  </div>
-                  <div id="contain" class="leading-8 mb-10 text-lg font-light">
-                    <p className="text-base text-gray-200 text-center px-20">
-                      Our platform offers consumers unparalleled transparency,
-                      enabling them to trace product origins and make informed
-                      choices with confidence.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="relative isolate overflow-hidden bg-gray-900">
-          <div className="px-10 py-20 flex flex-col items-center">
-            <h1 className="mb-4 text-center text-4xl font-extrabold text-white leading-tight">
-              Supply Chain Management
-            </h1>
-            <p className="mt-8 max-w-2xl text-center text-xl text-gray-300">
-              Our platform built on Hyperledger Fabric provides a secure and
-              transparent way for supply chain members to track and manage an
-              item.
-            </p>
-            <div className="mt-12">
-              <Link
-                to="/consumer"
-                className="inline-block px-4 py-3 text-lg font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600"
-              >
-                Track a Token
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div class="relative isolate overflow-hidden bg-gray-900" id="about">
-          <div class="absolute w-full top-10 -z-10 transform-gpu blur-3xl lg:top-[calc(50%-30rem)] ">
-            <div class="aspect-[1108/632] bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"></div>
-          </div>
-          <div className="px-10 py-20 flex flex-col items-center">
-            <h1 className="text-center text-4xl font-extrabold text-white leading-tight">
-              About Us
-            </h1>
-            <div className="mt-4 text-center rounded-lg px-8 pt-2 pb-10 flex flex-col justify-center items-center">
-              <p className="mt-4 max-w-2xl text-xl text-gray-300">
-                Welcome to our platform, where we merge cutting-edge Hyperledger
-                Fabric technology with the dynamic MERN stack for frontend
-                development to revolutionize supply chain management. With our
-                platform, manufacturers tokenize their products, ensuring
-                transparency and traceability from creation to consumption.
-                Distributors benefit from streamlined operations, while
-                consumers enjoy unparalleled transparency, making informed
-                decisions based on real-time data. Together, we're shaping a
-                supply chain ecosystem that's transparent, efficient, and
-                sustainable for all stakeholders. Join us as we redefine the
-                future of supply chain management.
+              <h3 className="text-xl font-bold text-content-primary mb-3">For Manufacturers</h3>
+              <p className="text-content-secondary leading-7">
+                Create products on the immutable ledger, fulfill orders, manage shipping status, and maintain full audit trails of every transaction.
               </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["Create Products", "Manage Orders", "Track Shipping"].map(tag => (
+                  <span key={tag} className="text-xs px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 ring-1 ring-indigo-500/20">
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="relative isolate overflow-hidden bg-gray-900">
-          <div className="px-10 py-20 flex flex-col items-center">
-            <h1 className="text-center text-4xl font-extrabold text-white leading-tight">
-              Get Started
-            </h1>
-            <div className="mt-4 text-center rounded-lg px-8 pt-4 pb-10 flex flex-col justify-center items-center">
-              <p className="mt-4 max-w-2xl text-xl text-gray-300">
-                "Register today on our platform and unlock the advantages of
-                secure, decentralized supply chain management. Experience
-                transparency and efficiency like never before."
+
+            {/* Consumer card */}
+            <div className="glass-card p-8 hover:border-accent-alt/40 hover:shadow-glow-sm transition-all duration-300 group">
+              <div className="h-12 w-12 rounded-xl bg-cyan-500/20 flex items-center justify-center mb-6 ring-1 ring-cyan-500/30 group-hover:ring-cyan-500/60 transition-all duration-300">
+                <img src={consumerImg} alt="Consumer" className="h-7 w-7" />
+              </div>
+              <h3 className="text-xl font-bold text-content-primary mb-3">For Consumers</h3>
+              <p className="text-content-secondary leading-7">
+                Browse verified products, place orders with confidence, and trace the full provenance of every item from manufacture to delivery.
               </p>
-              <div className="mt-12">
-                <a
-                  onClick={() => navigate("/register")}
-                  className="inline-block px-4 py-3 text-lg font-medium text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition duration-300 cursor-pointer"
-                >
-                  Get Started
-                </a>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["Browse Products", "Place Orders", "View History"].map(tag => (
+                  <span key={tag} className="text-xs px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20">
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
-        <footer className="mx-auto py-4 sm:px-6 lg:px-8 bg-gray-950">
-          <div className="pt-4 flex flex-col justify-center items-center">
-            <p className="text-base leading-6 text-gray-300">
-              © 2024 Supply Chain Management Platform. All rights reserved.
-              Experience the future of supply chain management today.
-            </p>
+      </section>
+
+      {/* ── Stats / CTA Banner ── */}
+      <section className="relative py-24 overflow-hidden">
+        <div aria-hidden="true" className="gradient-orb w-[500px] h-[500px] bg-indigo-600 top-[-100px] right-[-150px]" />
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
+          <h2 className="text-4xl font-extrabold text-content-primary leading-tight mb-6">
+            Supply Chain Management<br />
+            <span className="text-gradient">On the Blockchain</span>
+          </h2>
+          <p className="text-lg text-content-secondary max-w-2xl mx-auto mb-10">
+            Our platform built on Hyperledger Fabric provides a secure and transparent way for supply chain members to track and manage items with an immutable ledger.
+          </p>
+          <Link
+            to="/register"
+            className="btn-primary px-8 py-3.5 text-base rounded-xl shadow-glow-sm"
+          >
+            Register an Account
+          </Link>
+        </div>
+      </section>
+
+      {/* ── About Section ── */}
+      <section id="about" className="py-24 bg-surface-card/30">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <p className="text-sm font-semibold text-accent uppercase tracking-widest mb-3">About</p>
+          <h2 className="text-4xl font-bold text-content-primary mb-6">How It Works</h2>
+          <p className="text-lg text-content-secondary leading-8 max-w-2xl mx-auto">
+            This app uses Hyperledger Fabric for an immutable product ledger. Manufacturers (Org1) create and fulfill orders; consumers (Org2) browse products, place orders, and view on-chain transaction history for full transparency.
+          </p>
+
+          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { step: "01", title: "Register", desc: "Create your account as a manufacturer or consumer on Hyperledger Fabric." },
+              { step: "02", title: "Transact", desc: "Manufacturers create products; consumers browse and place orders on the ledger." },
+              { step: "03", title: "Trace",    desc: "Every status change is recorded immutably — full transparency at every step." },
+            ].map(item => (
+              <div key={item.step} className="glass-card p-6 text-left">
+                <span className="text-4xl font-black text-gradient opacity-60">{item.step}</span>
+                <h3 className="text-lg font-bold text-content-primary mt-2 mb-2">{item.title}</h3>
+                <p className="text-sm text-content-secondary leading-6">{item.desc}</p>
+              </div>
+            ))}
           </div>
-        </footer>
-      </div>
-    </>
+        </div>
+      </section>
+
+      {/* ── Get Started Section ── */}
+      <section className="relative py-24 overflow-hidden">
+        <div aria-hidden="true" className="gradient-orb w-[600px] h-[400px] bg-cyan-600 bottom-[-100px] left-[-200px]" />
+        <div className="relative z-10 text-center px-6">
+          <h2 className="text-4xl font-extrabold text-content-primary mb-6">
+            Ready to Get Started?
+          </h2>
+          <p className="text-lg text-content-secondary max-w-xl mx-auto mb-10">
+            Register today and unlock the advantages of secure, decentralized supply chain management. Experience transparency and efficiency like never before.
+          </p>
+          <button
+            onClick={() => navigate("/register")}
+            className="btn-primary px-8 py-3.5 text-base rounded-xl shadow-glow-accent"
+          >
+            Get Started Now
+          </button>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-surface-border bg-surface py-8">
+        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-content-muted">
+            © 2024 Supply Chain Nexus. All rights reserved.
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-content-muted">Powered by</span>
+            <span className="text-xs font-semibold text-gradient">Hyperledger Fabric</span>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 

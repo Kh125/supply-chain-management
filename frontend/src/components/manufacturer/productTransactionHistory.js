@@ -1,130 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback } from "react";
 import Loader from "../../common/loader";
 import ManufacturerService from "../../services/manufacturerService";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import useLedgerList from "../../hooks/useLedgerList";
+import { PageShell, DataTable } from "../../common/tableHelpers";
+import { StatusBadge } from "../../common/tableHelpers";
+
+const COLUMNS = [
+  "Product Name",
+  "Description",
+  "Price",
+  "Manufacturer",
+  "Status",
+  "Modified Date",
+];
 
 function ProductTransactionHistory() {
-  let { token } = useParams();
-  const [error, setError] = useState(false);
-  const [loader, setLoader] = useState(false);
-  const [data, setData] = useState([]);
-  const [show, setShow] = useState(false);
+  const { token } = useParams();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const sendRequest = async () => {
-      try {
-        setLoader(true);
-        const res = await ManufacturerService.getProductTransactionByToken(
-          token
-        );
-        setLoader(false);
-        if (res.data["success"]) {
-          setShow(true);
-          setData(res.data["data"]);
-          console.log(res.data["success"]);
-        } else {
-          setError(res.data["message"]);
-        }
-      } catch (error) {
-        console.log(error);
-        setError("Something went wrong!");
-      }
-    };
+  const fetchHistory = useCallback(async () => {
+    const res = await ManufacturerService.getProductTransactionByToken(token);
+    if (res.data?.success) return { success: true, data: res.data.data };
+    return { success: false, error: res.data?.message };
+  }, [token]);
 
-    sendRequest();
-  }, []); // Empty dependency array ensures useEffect runs only once on component mount
-
-  const columnNames = [
-    "Product Name",
-    "Product Description",
-    "Price",
-    "Manufacturer",
-    "Status",
-    "Modified Date",
-  ];
-
-  const TableData = ({ data }) => {
-    return (
-      <td className="px-3 py-4 whitespace-nowrap">
-        <div className="flex">
-          <div className="ml-4">
-            <div className="text-sm text-left font-medium text-gray-900">
-              {data}
-            </div>
-          </div>
-        </div>
-      </td>
-    );
-  };
+  const { data, loader, error, show } = useLedgerList(fetchHistory);
 
   return (
-    <>
-      {show && (
-        <div className="container my-12 px-6 mx-auto">
-          <section className="mb-32 text-center">
-            <div className="mx-auto px-3 lg:px-6">
-              <h2 className="text-left text-3xl font-bold mb-12">
-                Product Transaction History
-              </h2>
+    <PageShell title="Transaction History">
+      <div className="mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm text-content-muted hover:text-content-secondary transition-colors duration-150"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back to Product
+        </button>
+      </div>
 
-              <div className="flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            {columnNames.map((column, index) => {
-                              return (
-                                <th
-                                  key={index}
-                                  scope="col"
-                                  className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  {column}
-                                </th>
-                              );
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {data.map((item, index) => (
-                            <tr key={index} className="w-16">
-                              <TableData data={item.Name} />
-                              <TableData data={item.Description} />
-                              <TableData data={item.Price} />
-                              <TableData data={item.Manufacturer} />
-                              <TableData data={item.Status} />
-                              <TableData
-                                data={
-                                  item.ModifiedDate == "null"
-                                    ? item.CreatedDate
-                                    : item.ModifiedDate
-                                }
-                              />
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
+      {loader && (
+        <div className="flex justify-center py-16"><Loader /></div>
       )}
       {error && (
-        <div className="text-red-500 text-center my-10 text-lg font-semibold">
-          {error}
+        <div className="glass-card px-6 py-4 border-red-500/20 bg-red-500/5">
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
-      {loader && (
-        <div className="mt-5">
-          <Loader />
-        </div>
+      {show && (
+        <DataTable
+          columns={COLUMNS}
+          emptyMessage={
+            data.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <svg className="h-12 w-12 text-content-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-content-muted text-sm">No transaction history found.</p>
+              </div>
+            ) : null
+          }
+        >
+          {data.map((item, index) => (
+            <tr key={index} className="table-row">
+              <td className="table-td font-medium text-content-primary">{item.Name}</td>
+              <td className="table-td max-w-xs truncate">{item.Description}</td>
+              <td className="table-td">${item.Price}</td>
+              <td className="table-td">{item.Manufacturer}</td>
+              <td className="table-td">
+                <StatusBadge status={item.Status} />
+              </td>
+              <td className="table-td">
+                {item.ModifiedDate === "null" ? item.CreatedDate : item.ModifiedDate}
+              </td>
+            </tr>
+          ))}
+        </DataTable>
       )}
-    </>
+    </PageShell>
   );
 }
 

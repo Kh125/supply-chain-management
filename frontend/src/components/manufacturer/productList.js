@@ -1,175 +1,79 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback } from "react";
 import Loader from "../../common/loader";
 import ManufacturerService from "../../services/manufacturerService";
 import { Link } from "react-router-dom";
+import useLedgerList from "../../hooks/useLedgerList";
+import { StatusBadge, PageShell, DataTable } from "../../common/tableHelpers";
+
+const COLUMNS = [
+  "Product Name",
+  "Description",
+  "Price",
+  "Manufacturer",
+  "Status",
+  "Created Date",
+  "Action",
+];
 
 function ProductList() {
-  const [error, setError] = useState(false);
-  const [loader, setLoader] = useState(false);
-  const [data, setData] = useState([]);
-  const [show, setShow] = useState(false);
+  const fetchProducts = useCallback(async () => {
+    const res = await ManufacturerService.getProductList();
+    if (res.data?.success) return { success: true, data: res.data.data };
+    return { success: false, error: res.data?.message };
+  }, []);
 
-  useEffect(() => {
-    const sendRequest = async () => {
-      try {
-        setLoader(true);
-        const res = await ManufacturerService.getProductList();
-        setLoader(false);
-        if (res.data["success"]) {
-          setShow(true);
-          setData(res.data["data"]);
-          console.log(res.data["success"]);
-        } else {
-          setError(res.data["message"]);
-        }
-      } catch (error) {
-        console.log(error);
-        setError("Something went wrong!");
-      }
-    };
+  const { data, loader, error, show } = useLedgerList(fetchProducts);
 
-    sendRequest();
-  }, []); // Empty dependency array ensures useEffect runs only once on component mount
-
-  const generateColorClass = (status) => {
-    let color = "text-yellow-500";
-
-    switch (status) {
-      case "Accepted":
-        color = "text-green-500";
-        break;
-      case "Shipped":
-        color = "text-blue-500";
-        break;
-      case "Delivered":
-        color = "text-gray-500";
-        break;
-      case "Pending Order Request":
-      default:
-        color = "text-yellow-500";
-    }
-
-    return color;
-  };
-
-  const columnNames = [
-    // "Token Id",
-    "Product Name",
-    "Product Description",
-    "Price",
-    "Manufacturer",
-    "Status",
-    "Created Date",
-    "Action",
-  ];
-
-  const TableData = ({ data }) => {
-    return (
-      <td className="px-3 py-4 whitespace-nowrap">
-        <div className="flex">
-          <div className="ml-4">
-            <div className="text-sm text-left font-medium text-gray-900">
-              {data}
-            </div>
-          </div>
-        </div>
-      </td>
-    );
-  };
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <svg className="h-12 w-12 text-content-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+      </svg>
+      <p className="text-content-muted text-sm">No products found on the ledger yet.</p>
+    </div>
+  );
 
   return (
-    <>
-      {show && (
-        <div className="container my-12 px-6 mx-auto">
-          <section className="mb-32 text-center">
-            <div className="mx-auto px-3 lg:px-6">
-              <h2 className="text-left text-3xl font-bold mb-12">
-                Product List
-              </h2>
-
-              <div className="flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            {columnNames.map((column, index) => {
-                              return (
-                                <th
-                                  key={index}
-                                  scope="col"
-                                  className="px-7 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  {column}
-                                </th>
-                              );
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {data.map((item, index) => (
-                            <tr key={index} className="w-16">
-                              {/* <td className="px-3 py-4 w-9">
-                                <div className="text-sm text-left font-medium text-gray-900">
-                                  {item.ID}
-                                </div>
-                              </td> */}
-                              <TableData data={item.Name} />
-                              <TableData data={item.Description} />
-                              <TableData data={item.Price} />
-                              <TableData data={item.Manufacturer} />
-                              <td className="px-3 py-4 whitespace-nowrap">
-                                <div className="flex">
-                                  <div className="ml-4">
-                                    <div
-                                      className={`${generateColorClass(
-                                        item.Status
-                                      )} "text-sm text-left font-medium"`}
-                                    >
-                                      {item.Status}
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                              <TableData data={item.CreatedDate} />
-                              <td className="px-3 py-4 whitespace-nowrap">
-                                <div className="flex">
-                                  <div className="ml-4">
-                                    <div className="text-sm text-left font-medium text-gray-900">
-                                      <Link
-                                        to={`/product-info/${item.ID}`}
-                                        className="underline text-blue-500"
-                                      >
-                                        View More
-                                      </Link>
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
+    <PageShell title="Product List">
+      {loader && (
+        <div className="flex justify-center py-16"><Loader /></div>
       )}
       {error && (
-        <div className="text-red-500 text-center my-10 text-lg font-semibold">
-          {error}
+        <div className="glass-card px-6 py-4 border-red-500/20 bg-red-500/5">
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
-      {loader && (
-        <div className="mt-5">
-          <Loader />
-        </div>
+      {show && (
+        <DataTable
+          columns={COLUMNS}
+          emptyMessage={data.length === 0 ? <EmptyState /> : null}
+        >
+          {data.map((item, index) => (
+            <tr key={index} className="table-row">
+              <td className="table-td font-medium text-content-primary">{item.Name}</td>
+              <td className="table-td max-w-xs truncate">{item.Description}</td>
+              <td className="table-td">${item.Price}</td>
+              <td className="table-td">{item.Manufacturer}</td>
+              <td className="table-td">
+                <StatusBadge status={item.Status} />
+              </td>
+              <td className="table-td">{item.CreatedDate}</td>
+              <td className="table-td">
+                <Link
+                  to={`/product-info/${item.ID}`}
+                  className="inline-flex items-center gap-1.5 text-accent hover:text-accent-hover font-medium text-sm transition-colors duration-150"
+                >
+                  View details
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                  </svg>
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </DataTable>
       )}
-    </>
+    </PageShell>
   );
 }
 

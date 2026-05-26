@@ -1,0 +1,23 @@
+# App containers only. Start Fabric separately: cd backend/network && ./startNetwork.sh
+services:
+  api:
+    build: ./backend/api
+    ports:
+      - "4000:4000"
+    environment:
+      - CHANNEL_NAME=mychannel
+      - CHAINCODE_NAME=basic
+    volumes:
+      # Mount Fabric connection profiles and wallets after network is up
+      - ./backend/network/organizations:/app/network/organizations:ro
+      - ./backend/api/wallet:/app/wallet
+      - ./backend/api/org2Wlt:/app/org2Wlt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api

@@ -1,313 +1,177 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import ManufacturerService from "../../services/manufacturerService";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import History from "../../assets/images/common/history.png";
-import ConsumerService from "../../services/consumerService";
+import Loader from "../../common/loader";
+import ProductDetailFields from "../common/ProductDetailFields";
+import ShippingProgress from "../common/ShippingProgress";
+import useProductFromLedger from "../../hooks/useProductFromLedger";
+import {
+  canManufacturerAccept,
+  canManufacturerDeliver,
+  canManufacturerShip,
+  canManufacturerUpdate,
+} from "../../utils/productStatus";
+import { notifyLedgerChanged } from "../../utils/ledgerSync";
+import { useAuth } from "../../context/AuthContext";
 
 function ProductInfo() {
-  let { token } = useParams();
-  const orgName = localStorage.getItem("orgName");
-  const [tokenId, setTokenId] = useState("");
-  const [userName, setUserName] = useState("");
-  const [productName, setProductName] = useState("");
-  const [productDescription, setProductDescription] = useState("");
-  const [productPrice, setProductPrice] = useState("");
-  const [productStatus, setProductStatus] = useState("");
-  const [createdDate, setCreatedDate] = useState("");
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [loader, setLoader] = useState(false);
-  var color = "";
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const { role } = useAuth();
+  const isManufacturer = role === "manufacturer";
+  const { product, loading, error, refetch, setError } = useProductFromLedger(token);
+  const [success, setSuccess] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("Tocken", token);
-    const getProductInfo = async () => {
-      try {
-        setLoader(true);
-        const res = await ManufacturerService.getProductByToken(token);
-        setLoader(false);
-
-        console.log("Fetch Product", res);
-        console.log("bool", res.data);
-
-        if (res.data["success"]) {
-          console.log("result", res.data["result"].Name);
-          setData(res.data["result"]);
-          setProductName(res.data["result"].Name);
-          setTokenId(res.data["result"].ID);
-          setUserName(res.data["result"].Manufacturer);
-          setProductDescription(res.data["result"].Description);
-          setProductPrice(res.data["result"].Price);
-          setProductStatus(res.data["result"].Status);
-          setCreatedDate(res.data["result"].CreatedDate);
-
-          console.log("uf", productName, productDescription, productPrice);
-        } else {
-          setError(res.data["message"]);
-        }
-      } catch (error) {
-        console.log(error);
-        setError("Something went wrong!");
-      }
-    };
-
-    const generateColorClass = (status) => {
-      let color = "text-yellow-500";
-
-      switch (status) {
-        case "Accepted":
-          color = "text-green-500";
-          break;
-        case "Shipped":
-          color = "text-blue-500";
-          break;
-        case "Delivered":
-          color = "text-gray-500";
-          break;
-        case "Pending Order Request":
-        default:
-          color = "text-yellow-500";
-      }
-    };
-
-    generateColorClass(productStatus);
-    getProductInfo();
-  }, []);
-
-  const deliverProduct = async () => {
+  const runAction = async (actionFn, successMessage) => {
+    setError("");
+    setSuccess("");
+    setActionLoading(true);
     try {
-      setLoader(true);
-      let manufacturerName = localStorage.getItem("username");
-      const res = await ManufacturerService.deliverProductOrder({
-        token,
-      });
-      setLoader(false);
-
-      console.log("Deliver Product", res);
-      // console.log("Order Product", res.data);
-
-      if (res["success"]) {
-        console.log("Message", res["message"]);
-        setSuccess(res["message"]);
+      const res = await actionFn();
+      if (res.success) {
+        setSuccess(successMessage || res.message);
+        await refetch();
+        notifyLedgerChanged(token);
       } else {
-        setError(res["message"]);
+        setError(res.message || "Action failed");
       }
-    } catch (error) {
-      console.log(error);
-      setError(error);
+    } catch (err) {
+      setError(typeof err === "string" ? err : "Action failed");
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const shipProduct = async () => {
-    try {
-      setLoader(true);
-      let manufacturerName = localStorage.getItem("username");
-      const res = await ManufacturerService.shipProductOrder({
-        token,
-      });
-      setLoader(false);
+  const acceptOrder   = () => runAction(() => ManufacturerService.acceptProductOrder(token),  "Order accepted on ledger");
+  const shipProduct   = () => runAction(() => ManufacturerService.shipProductOrder(token),    "Product marked as shipped");
+  const deliverProduct = () => runAction(() => ManufacturerService.deliverProductOrder(token), "Product marked as delivered");
 
-      console.log("Ship Product", res);
-      // console.log("Order Product", res.data);
+  if (loading && !product) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
-      if (res["success"]) {
-        console.log("Message", res["message"]);
-        setSuccess(res["message"]);
-      } else {
-        setError(res["message"]);
-      }
-    } catch (error) {
-      console.log(error);
-      setError(error);
-    }
-  };
+  const status = product?.Status;
 
   return (
-    <div class="md:flex items-start justify-center py-12 2xl:px-20 md:px-6 px-4">
-      <div class="xl:w-2/5 md:w-1/2 lg:ml-8 md:ml-6 md:mt-0 mt-6">
-        <div class="border-b border-gray-200 pb-6">
-          <p class="text-sm leading-none text-gray-600 dark:text-gray-300 ">
-            Category
-          </p>
-          <h1 class="lg:text-2xl text-xl font-semibold lg:leading-6 leading-7 text-gray-800 dark:text-white mt-2">
-            Product Details
-          </h1>
-        </div>
-        <div>
-          <p class="text-base leading-4 mt-7 text-gray-600 dark:text-gray-300">
-            Token ID: {tokenId}
-          </p>
-          <p class="text-base leading-4 mt-7 text-gray-600 dark:text-gray-300">
-            Product Name: {productName}
-          </p>
-          <p class="text-base leading-4 mt-4 text-gray-600 dark:text-gray-300">
-            Description: {productDescription}
-          </p>
-          <p class="text-base leading-4 mt-4 text-gray-600 dark:text-gray-300">
-            Price: {productPrice}
-          </p>
-          <p class="text-base leading-4 mt-4 dark:text-gray-300">
-            Status:
-            <span className={color}>{productStatus}</span>
-          </p>
-          <p class="text-base leading-4 mt-4 text-gray-600 dark:text-gray-300">
-            Manufacturer: {userName}
-          </p>
-          <p class="text-base leading-4 mt-4 text-gray-600 dark:text-gray-300">
-            Manufacturered Date: {createdDate}
-          </p>
-          {data && data.Consumer.length != 0 && (
-            <p class="text-base leading-4 mt-4 text-gray-600 dark:text-gray-300">
-              Consumer: {data.Consumer == "null" ? "-" : data.Consumer}
-            </p>
-          )}
+    <div className="min-h-screen bg-surface py-10 px-4 animate-fade-in">
+      <div className="mx-auto max-w-2xl">
+        {/* Back button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm text-content-muted hover:text-content-secondary mb-6 transition-colors duration-150"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          Back
+        </button>
+
+        {/* Page heading */}
+        <div className="mb-2">
+          <p className="text-xs text-content-muted uppercase tracking-widest">Manufacturer View</p>
+          <h1 className="page-heading mt-1">Product Details</h1>
         </div>
 
-        {orgName === "manufacturer" && (
-          <>
-            {productStatus == "Pending" && (
+        {/* Alerts */}
+        {error && (
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+            <svg className="h-4 w-4 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/20 px-4 py-3">
+            <svg className="h-4 w-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-green-400">{success}</p>
+          </div>
+        )}
+
+        {/* Product info card */}
+        <ProductDetailFields product={product} />
+
+        {/* Actions */}
+        {isManufacturer && product && (
+          <div className="mt-6 space-y-3">
+            {canManufacturerUpdate(status) && (
               <Link
                 to={`/update-product/${token}`}
-                className="mt-10 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 text-base flex items-center justify-center leading-none text-white bg-gray-800 w-full py-4 hover:bg-gray-700"
+                className="btn-secondary w-full justify-center py-3"
               >
-                Update Product Details
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+                Update Product
               </Link>
+            )}
+
+            {canManufacturerAccept(status) && (
+              <button
+                type="button"
+                onClick={acceptOrder}
+                disabled={actionLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-green-500/15 text-green-400 ring-1 ring-green-500/30 font-semibold text-sm hover:bg-green-500/25 disabled:opacity-50 transition-all duration-200"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Accept Order Request
+              </button>
+            )}
+
+            {canManufacturerShip(status) && (
+              <button
+                type="button"
+                onClick={shipProduct}
+                disabled={actionLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-500/15 text-blue-400 ring-1 ring-blue-500/30 font-semibold text-sm hover:bg-blue-500/25 disabled:opacity-50 transition-all duration-200"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                </svg>
+                Mark as Shipped
+              </button>
+            )}
+
+            {canManufacturerDeliver(status) && (
+              <button
+                type="button"
+                onClick={deliverProduct}
+                disabled={actionLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-slate-500/15 text-slate-300 ring-1 ring-slate-500/30 font-semibold text-sm hover:bg-slate-500/25 disabled:opacity-50 transition-all duration-200"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Mark as Delivered
+              </button>
             )}
 
             <Link
               to={`/product-transaction-history/${token}`}
-              className="text-left mt-10 focus:outline-none text-base flex items-center leading-none w-full py-4 underline text-blue-700"
+              className="flex items-center justify-center gap-2 py-3 text-sm text-content-secondary hover:text-accent transition-colors duration-150"
             >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               View Transaction History
-              <img src={History} className="w-6 h-6 ml-2" alt="History" />
             </Link>
-          </>
-        )}
-        {productStatus == "Accepted" && (
-          <Link
-            onClick={() => shipProduct(tokenId)}
-            className="mt-10 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 text-base flex items-center justify-center leading-none text-white bg-gray-800 w-full py-4 hover:bg-gray-700"
-          >
-            Ship Product
-          </Link>
-        )}
-        {productStatus == "Shipped" && (
-          <Link
-            onClick={() => deliverProduct(tokenId)}
-            className="mt-10 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 text-base flex items-center justify-center leading-none text-white bg-gray-800 w-full py-4 hover:bg-gray-700"
-          >
-            Delivered Product
-          </Link>
-        )}
-        {error ? (
-          <div className="text-red-500 text-sm text-center  ">{error}</div>
-        ) : null}
-        {success ? (
-          <>
-            <div className="text-green-500 text-sm text-center  ">
-              {success}
-            </div>
-          </>
-        ) : null}
-        {/* {orgName !== "manufacturer" && (
-          <Link
-            onClick={() => orderProduct()}
-            className="mt-10 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 text-base flex items-center justify-center leading-none text-white bg-gray-800 w-full py-4 hover:bg-gray-700"
-          >
-            Order Product
-          </Link>
-        )} */}
-        <div>
-          <h1 class="mt-12 mb-8 text-left font-black text-gray-700">
-            Product Shipping Info
-          </h1>
-          <div class="flex">
-            <div class="w-1/3 text-center px-6">
-              <div class="bg-gray-300 rounded-lg flex items-center justify-center border border-gray-200">
-                <div class="w-1/3 bg-transparent h-20 flex items-center justify-center icon-step">
-                  <svg
-                    width="24"
-                    height="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                  >
-                    <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z" />
-                  </svg>
-                </div>
-                <div class="w-2/3 bg-gray-200 h-24 flex flex-col items-center justify-center px-1 rounded-r-lg body-step">
-                  <h2 class="font-bold text-sm">Order Accepted</h2>
-                  {/* <p class="text-xs text-gray-600">
-                    
-                  </p> */}
-                </div>
-              </div>
-            </div>
-            <div class="flex-1 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-              >
-                <path d="M14 2h-7.229l7.014 7h-13.785v6h13.785l-7.014 7h7.229l10-10z" />
-              </svg>
-            </div>
-            <div class="w-1/3 text-center px-6">
-              <div class="bg-gray-300 rounded-lg flex items-center justify-center border border-gray-200">
-                <div class="w-1/3 bg-transparent h-20 flex items-center justify-center icon-step">
-                  <svg
-                    width="24"
-                    height="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                  >
-                    <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z" />
-                  </svg>
-                </div>
-                <div class="w-2/3 bg-gray-200 h-24 flex flex-col items-center justify-center px-1 rounded-r-lg body-step">
-                  <h2 class="font-bold text-sm">Shipped</h2>
-                  {/* <p class="text-xs text-gray-600">
-                    Anything you want for your credentials
-                  </p> */}
-                </div>
-              </div>
-            </div>
-            <div class="flex-1 flex items-center justify-center">
-              <svg
-                width="24"
-                height="24"
-                xmlns="http://www.w3.org/2000/svg"
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-              >
-                <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z" />
-              </svg>
-            </div>
-            <div class="w-1/3 text-center px-6">
-              <div class="bg-gray-300 rounded-lg flex items-center justify-center border border-gray-200">
-                <div class="w-1/3 bg-transparent h-20 flex items-center justify-center icon-step">
-                  <svg
-                    width="24"
-                    height="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                  >
-                    <path d="M21 6.285l-11.16 12.733-6.84-6.018 1.319-1.49 5.341 4.686 9.865-11.196 1.475 1.285z" />
-                  </svg>
-                </div>
-                <div class="w-2/3 bg-gray-200 h-24 flex flex-col items-center justify-center px-1 rounded-r-lg body-step">
-                  <h2 class="font-bold text-sm">Delivered</h2>
-                  {/* <p class="text-xs text-gray-600">Finish it!</p> */}
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
+        )}
+
+        {product && <ShippingProgress status={product.Status} />}
+
+        {actionLoading && (
+          <div className="mt-6 flex justify-center"><Loader /></div>
+        )}
       </div>
     </div>
   );
